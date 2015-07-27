@@ -1,10 +1,12 @@
 package algolia
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/url"
 	"time"
 
-	"github.com/dghubble/sling"
 	"github.com/drinkin/di/env"
 )
 
@@ -14,15 +16,77 @@ const (
 )
 
 type Service struct {
-	base  *sling.Sling
-	read  *sling.Sling
-	write *sling.Sling
+	appId      string
+	apiKey     string
+	httpClient *http.Client
+}
+
+func (s *Service) writeURL() *url.URL {
+	return &url.URL{Scheme: "https", Host: s.appId + ".algolia.net"}
+}
+
+func (s *Service) newRequest(m, u string, obj interface{}) (*http.Request, error) {
+
+	b := new(bytes.Buffer)
+	if obj != nil {
+		if err := json.NewEncoder(b).Encode(obj); err != nil {
+			return nil, err
+		}
+	}
+
+	req, err := http.NewRequest(m, u, b)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-Algolia-Application-Id", s.appId)
+	req.Header.Set("X-Algolia-API-Key", s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	return req, nil
+}
+
+func (s *Service) makeRequest(m string, u *url.URL, obj interface{}) *Value {
+	req, err := s.newRequest(m, u.String(), obj)
+	if err != nil {
+		return NewErrValue(err)
+	}
+
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return NewErrValue(err)
+	}
+
+	return NewValue(resp)
+}
+
+func (s *Service) Get(pth string) *Value {
+	u := &url.URL{
+		Scheme: "https",
+		Host:   s.appId + "-dsn.algolia.net",
+		Path:   pth,
+	}
+	return s.makeRequest("GET", u, nil)
+
+}
+func (s *Service) Post(pth string, obj interface{}) *Value {
+	return s.writeRequest("POST", pth, obj)
+}
+func (s *Service) Put(pth string, obj interface{}) *Value {
+	return s.writeRequest("PUT", pth, obj)
+}
+
+func (s *Service) writeRequest(m, pth string, obj interface{}) *Value {
+	u := &url.URL{
+		Scheme: "https",
+		Host:   s.appId + ".algolia.net",
+		Path:   pth,
+	}
+
+	return s.makeRequest(m, u, obj)
 }
 
 type Client struct {
-	appId  string
-	apiKey string
-
 	service *Service
 }
 
@@ -31,20 +95,13 @@ func FromEnv() *Client {
 }
 
 func NewClient(appId, apiKey string) *Client {
-
-	base := sling.New().
-		Add("X-Algolia-Application-Id", appId).
-		Add("X-Algolia-API-Key", apiKey)
-
 	service := &Service{
-		base:  base,
-		read:  base.Base(fmt.Sprintf("https://%s-dsn.algolia.net/1/", appId)),
-		write: base.Base(fmt.Sprintf("https://%s.algolia.net/1/", appId)),
+		appId:      appId,
+		apiKey:     apiKey,
+		httpClient: http.DefaultClient,
 	}
 
 	return &Client{
-		appId:   appId,
-		apiKey:  apiKey,
 		service: service,
 	}
 }

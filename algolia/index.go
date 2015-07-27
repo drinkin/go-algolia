@@ -2,39 +2,50 @@ package algolia
 
 import (
 	"fmt"
-	"net/http"
-	"strings"
-
-	"github.com/dghubble/sling"
-	"github.com/k0kubun/pp"
+	"time"
 )
 
 type Index struct {
 	Name    string
 	service *Service
 }
+type BatchTaskResp struct {
+	TaskId    int64    `json:"taskID"`
+	ObjectIds []string `json:"objectIDs"`
+}
 
-func (idx *Index) read() *sling.Sling {
-	return idx.service.read.Path(fmt.Sprintf("indexes/%s/", idx.Name))
+type TaskResp struct {
+	TaskId    int64     `json:"taskID"`
+	ObjectId  string    `json:"ObjectId"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (idx *Index) pathFor(objectId string) string {
+	return fmt.Sprintf("/1/indexes/%s/%s", idx.Name, objectId)
+}
+
+func (idx *Index) UpdateObject(obj Indexable) (*TaskResp, error) {
+	obj.AlgoliaBeforeIndex()
+	return idx.service.Put(idx.pathFor(obj.AlgoliaId()), obj).asTaskResp()
+}
+
+func (idx *Index) BatchUpdate(objs []Indexable) (*BatchTaskResp, error) {
+	requests := make([]*BatchItem, len(objs))
+
+	for i, obj := range objs {
+		obj.AlgoliaBeforeIndex()
+		requests[i] = &BatchItem{
+			Action: "updateObject",
+			Body:   obj,
+		}
+	}
+	tr := new(BatchTaskResp)
+	return tr, idx.service.Post(idx.pathFor("batch"), map[string]interface{}{
+		"requests": requests,
+	}).Scan(tr)
+
 }
 
 func (idx *Index) GetObject(id string, attrs ...string) *Value {
-	req, err := idx.read().Get(id).Request()
-	pp.Print(req.URL)
-	if err != nil {
-		return ErrValue(err)
-	}
-
-	if len(attrs) > 0 {
-		req.Form.Set("attributes", strings.Join(attrs, ","))
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return ErrValue(err)
-	}
-
-	return &Value{
-		Response: resp,
-	}
+	return idx.service.Get(idx.pathFor(id))
 }
