@@ -53,6 +53,6 @@ var _ = Describe("Algolia", func() {
 		})
 
 	}
-	CheckValidIndex(algolia.FromEnv().MockIndex(TestIndexName))
+	CheckValidIndex(algolia.FromEnv(true).Index(TestIndexName))
 	CheckValidIndex(algolia.FromEnv().Index(TestIndexName))
 })

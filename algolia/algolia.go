@@ -1,6 +1,6 @@
 package algolia
 
-import "time"
+import "github.com/drinkin/di/env"
 
 // Indexable represents objects that can be saved to the search index.
 type Indexable interface {
@@ -9,58 +9,32 @@ type Indexable interface {
 	AlgoliaBeforeIndex()
 }
 
+type Client interface {
+	Index(string) Index
+}
+
 // Index represents a backend.
 type Index interface {
 	Name() string
 	Must() *MustIndex
-	GetTaskStatus(taskId int64) (*TaskStatus, error)
-	UpdateObject(obj Indexable) (*Task, error)
-	BatchUpdate(objs []Indexable) (*BatchTask, error)
+	GetTaskStatus(id int64) (*TaskStatus, error)
+	UpdateObject(Indexable) (*Task, error)
+	BatchUpdate([]Indexable) (*BatchTask, error)
 	GetObject(id string, attrs ...string) Value
-}
-
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-type MustIndex struct {
-	index Index
-}
-
-func (m *MustIndex) BatchUpdate(objs []Indexable) *BatchTask {
-	ts, err := m.index.BatchUpdate(objs)
-	check(err)
-	return ts
-}
-
-func (m *MustIndex) GetTaskStatus(taskId int64) *TaskStatus {
-	ts, err := m.index.GetTaskStatus(taskId)
-	check(err)
-	return ts
 }
 
 type Value interface {
 	Scan(obj interface{}) error
 }
 
-type TaskStatus struct {
-	Status  string `json:"status"`
-	Pending bool   `json:pendingTask`
+func New(appId, apiKey string, useMock ...bool) Client {
+	if len(useMock) > 0 && useMock[0] {
+		return NewClientMock()
+	}
+
+	return NewClientService(appId, apiKey)
 }
 
-func (ts *TaskStatus) IsPublished() bool {
-	return ts.Status == "published"
-}
-
-type BatchTask struct {
-	TaskId    int64    `json:"taskID"`
-	ObjectIds []string `json:"objectIDs"`
-}
-
-type Task struct {
-	TaskId    int64     `json:"taskID"`
-	ObjectId  string    `json:"ObjectId"`
-	UpdatedAt time.Time `json:"updatedAt"`
+func FromEnv(useMock ...bool) Client {
+	return New(env.MustGet("ALGOLIA_APP_ID"), env.MustGet("ALGOLIA_API_KEY"), useMock...)
 }

@@ -1,36 +1,24 @@
 package algolia
 
-import (
-	"net/http"
+import "net/http"
 
-	"github.com/drinkin/di/env"
-)
-
-type Client struct {
+type ClientService struct {
 	service *Service
 }
 
-func FromEnv() *Client {
-	return NewClient(env.MustGet("ALGOLIA_APP_ID"), env.MustGet("ALGOLIA_API_KEY"))
-}
-
-func NewClient(appId, apiKey string) *Client {
+func NewClientService(appId, apiKey string) *ClientService {
 	service := &Service{
 		appId:      appId,
 		apiKey:     apiKey,
 		httpClient: http.DefaultClient,
 	}
 
-	return &Client{
+	return &ClientService{
 		service: service,
 	}
 }
 
-func (c *Client) MockIndex(name string) Index {
-	return NewIndexMock(name)
-}
-
-func (c *Client) Index(name string) Index {
+func (c *ClientService) Index(name string) Index {
 	return &IndexService{
 		name:    name,
 		service: c.service,
