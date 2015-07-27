@@ -26,7 +26,11 @@ func NewClient(appId, apiKey string) *Client {
 	}
 }
 
-func (c *Client) Index(name string) *IndexService {
+func (c *Client) MockIndex(name string) Index {
+	return NewIndexMock(name)
+}
+
+func (c *Client) Index(name string) Index {
 	return &IndexService{
 		name:    name,
 		service: c.service,
