@@ -22,6 +22,8 @@ type Index interface {
 	UpdateObject(Indexable) (*Task, error)
 	BatchUpdate([]Indexable) (*BatchTask, error)
 	GetObject(id string, attrs ...string) Value
+	Settings() *SettingsBuilder
+	SetSettings(*Settings) (*Task, error)
 }
 
 type Value interface {

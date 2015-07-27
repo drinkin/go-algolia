@@ -55,3 +55,12 @@ func (idx *IndexService) BatchUpdate(objs []Indexable) (*BatchTask, error) {
 func (idx *IndexService) GetObject(id string, attrs ...string) Value {
 	return idx.service.Get(idx.pathFor(id))
 }
+
+func (idx *IndexService) SetSettings(s *Settings) (*Task, error) {
+	tr := new(Task)
+	return tr, idx.service.Put(idx.pathFor("settings"), s).Scan(tr)
+}
+
+func (idx *IndexService) Settings() *SettingsBuilder {
+	return NewSettingsBuilder(idx)
+}

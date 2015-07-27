@@ -24,8 +24,9 @@ type IndexMock struct {
 	mu   sync.RWMutex
 	name string
 
-	objects map[string][]byte
-	tasks   map[int64]bool
+	objects  map[string][]byte
+	tasks    map[int64]bool
+	settings *Settings
 }
 
 func NewIndexMock(name string) *IndexMock {
@@ -111,4 +112,16 @@ func (idx *IndexMock) GetObject(id string, attrs ...string) Value {
 	}
 
 	return NewMockValue(b)
+}
+
+func (idx *IndexMock) SetSettings(s *Settings) (*Task, error) {
+	idx.mu.Lock()
+	defer idx.mu.Unlock()
+
+	idx.settings = s
+	return nil, nil
+}
+
+func (idx *IndexMock) Settings() *SettingsBuilder {
+	return NewSettingsBuilder(idx)
 }
