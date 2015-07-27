@@ -11,6 +11,7 @@ type Indexable interface {
 
 type Client interface {
 	Index(string) Index
+	SetIndexPrefix(string)
 }
 
 // Index represents a backend.

@@ -1,9 +1,13 @@
 package algolia
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type ClientService struct {
 	service *Service
+	prefix  string
 }
 
 func NewClientService(appId, apiKey string) *ClientService {
@@ -18,9 +22,13 @@ func NewClientService(appId, apiKey string) *ClientService {
 	}
 }
 
-func (c *ClientService) Index(name string) Index {
+func (c *ClientService) SetIndexPrefix(p string) {
+	c.prefix = p
+}
+
+func (c *ClientService) Index(n string) Index {
 	return &IndexService{
-		name:    name,
+		name:    fmt.Sprintf("%s%s", c.prefix, n),
 		service: c.service,
 	}
 }
