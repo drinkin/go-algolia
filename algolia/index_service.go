@@ -15,10 +15,6 @@ func (idx *IndexService) pathFor(parts ...string) string {
 	return fmt.Sprintf("/1/indexes/%s/%s", idx.name, filepath.Join(parts...))
 }
 
-func (idx *IndexService) Must() *MustIndex {
-	return &MustIndex{idx}
-}
-
 func (idx *IndexService) Name() string {
 	return idx.name
 }

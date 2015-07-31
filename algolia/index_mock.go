@@ -39,10 +39,6 @@ func (idx *IndexMock) Name() string {
 	return idx.name
 }
 
-func (idx *IndexMock) Must() *MustIndex {
-	return &MustIndex{idx}
-}
-
 func (idx *IndexMock) GetTaskStatus(taskId int64) (*TaskStatus, error) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()

@@ -4,20 +4,30 @@ import "github.com/drinkin/di/env"
 
 // Indexable represents objects that can be saved to the search index.
 type Indexable interface {
+	// AlgoliaId returns a value that should be used for the `objectID`
 	AlgoliaId() string
 
+	// AlgoliaBeforeIndex is called for each item before indexing.
+	// You should set the model's objectID here if you want to batchUpdate.
 	AlgoliaBeforeIndex()
 }
 
+// A Client connects to the algolia service.
 type Client interface {
 	Index(string) Index
+
+	// SetIndexPrefix allows you to set a prefix for all following Indexes.
+	// This is useful for
 	SetIndexPrefix(string)
 }
 
 // Index represents a backend.
 type Index interface {
+	// Name returns the index name.
+	// If the client had `SetIndexPrefix`, it will be included.
 	Name() string
-	Must() *MustIndex
+
+	// GetTaskStatus checks on the status of a task.
 	GetTaskStatus(id int64) (*TaskStatus, error)
 	UpdateObject(Indexable) (*Task, error)
 	BatchUpdate([]Indexable) (*Task, error)

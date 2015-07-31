@@ -10,6 +10,11 @@ import (
 var _ = Describe("Algolia", func() {
 	var (
 		example *Example
+
+		clients = []algolia.Client{
+			algolia.FromEnv(true), // mock client
+			algolia.FromEnv(),     // real client
+		}
 	)
 
 	BeforeEach(func() {
@@ -17,7 +22,8 @@ var _ = Describe("Algolia", func() {
 	})
 
 	CheckValidIndex := func(idx algolia.Index) {
-		It("", func() {
+		It("success", func() {
+			Expect(idx.Name()).To(Equal(TestIndexName))
 			tr, err := idx.UpdateObject(example)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(tr.ObjectId).To(Equal(example.AlgoliaId()))
@@ -30,7 +36,8 @@ var _ = Describe("Algolia", func() {
 			Expect(savedObj).To(Equal(example))
 
 			example2 := RandomExample()
-			bt := idx.Must().BatchUpdate([]algolia.Indexable{example2})
+			bt, err := idx.BatchUpdate([]algolia.Indexable{example2})
+			Expect(err).ToNot(HaveOccurred())
 			Expect(example2.AlgoliaId()).To(Equal(bt.ObjectIds[0]))
 		})
 
@@ -46,7 +53,26 @@ var _ = Describe("Algolia", func() {
 			Expect(ts.Status).To(Equal("notPublished"))
 		})
 
+		It("Can set settings", func() {
+			idx.Settings().
+				AttributesToIndex("name").
+				AttributesForFaceting("facet_1", "facet_2").
+				CustomRanking("desc(name)").
+				Save()
+		})
 	}
-	CheckValidIndex(algolia.FromEnv(true).Index(TestIndexName))
-	CheckValidIndex(algolia.FromEnv().Index(TestIndexName))
+
+	CheckValidClient := func(client algolia.Client) {
+		CheckValidIndex(client.Index(TestIndexName))
+
+		It("can set prefix", func() {
+			client.SetIndexPrefix("test_")
+			Expect(client.Index("hello").Name()).To(Equal("test_hello"))
+		})
+	}
+
+	for _, client := range clients {
+		CheckValidClient(client)
+	}
+
 })
