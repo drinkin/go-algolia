@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"sync"
 	"time"
-
-	"github.com/drinkin/di/random"
 )
 
 type MockValue struct {
@@ -74,24 +72,20 @@ func (idx *IndexMock) UpdateObject(obj Indexable) (*Task, error) {
 		return nil, err
 	}
 
-	task := &Task{
-		TaskId:    random.Int64(1, 9999999999),
-		ObjectId:  obj.AlgoliaId(),
-		UpdatedAt: time.Now(),
-	}
+	task := randomTask(idx)
+	task.ObjectId = obj.AlgoliaId()
+	task.UpdatedAt = time.Now()
 
-	idx.tasks[task.TaskId] = true
+	idx.tasks[task.Id] = true
 
 	return task, nil
 }
 
-func (idx *IndexMock) BatchUpdate(objs []Indexable) (*BatchTask, error) {
+func (idx *IndexMock) BatchUpdate(objs []Indexable) (*Task, error) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
 
-	task := &BatchTask{
-		TaskId: random.Int64(1, 9999999999),
-	}
+	task := randomTask(idx)
 	for _, obj := range objs {
 		idx.doUpdate(obj)
 		task.ObjectIds = append(task.ObjectIds, obj.AlgoliaId())
@@ -119,7 +113,7 @@ func (idx *IndexMock) SetSettings(s *Settings) (*Task, error) {
 	defer idx.mu.Unlock()
 
 	idx.settings = s
-	return nil, nil
+	return randomTask(idx), nil
 }
 
 func (idx *IndexMock) Settings() *SettingsBuilder {

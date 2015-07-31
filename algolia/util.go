@@ -1,6 +1,14 @@
 package algolia
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
+
+// Int64ToString is a utility to convert int64 to objectID string
+func Int64ToString(v int64) string {
+	return strconv.FormatInt(v, 10)
+}
 
 func HostsForAppId(appId string) []string {
 	hosts := make([]string, 3)

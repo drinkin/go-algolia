@@ -20,7 +20,7 @@ type Index interface {
 	Must() *MustIndex
 	GetTaskStatus(id int64) (*TaskStatus, error)
 	UpdateObject(Indexable) (*Task, error)
-	BatchUpdate([]Indexable) (*BatchTask, error)
+	BatchUpdate([]Indexable) (*Task, error)
 	GetObject(id string, attrs ...string) Value
 	Settings() *SettingsBuilder
 	SetSettings(*Settings) (*Task, error)
@@ -38,6 +38,9 @@ func New(appId, apiKey string, useMock ...bool) Client {
 	return NewClientService(appId, apiKey)
 }
 
+// FromEnv creates a new Client
+// The environment variables `ALGOLIA_APP_ID` and `ALGOLIA_API_KEY` are used.
+// If useMock is true the client is a fake algolia implementation.
 func FromEnv(useMock ...bool) Client {
 	return New(env.MustGet("ALGOLIA_APP_ID"), env.MustGet("ALGOLIA_API_KEY"), useMock...)
 }

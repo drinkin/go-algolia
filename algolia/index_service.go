@@ -31,11 +31,12 @@ func (idx *IndexService) GetTaskStatus(taskId int64) (*TaskStatus, error) {
 
 func (idx *IndexService) UpdateObject(obj Indexable) (*Task, error) {
 	obj.AlgoliaBeforeIndex()
-	tr := new(Task)
-	return tr, idx.service.Put(idx.pathFor(obj.AlgoliaId()), obj).Scan(tr)
+	v := idx.service.Put(idx.pathFor(obj.AlgoliaId()), obj)
+
+	return NewTask(idx, v)
 }
 
-func (idx *IndexService) BatchUpdate(objs []Indexable) (*BatchTask, error) {
+func (idx *IndexService) BatchUpdate(objs []Indexable) (*Task, error) {
 	requests := make([]*BatchItem, len(objs))
 
 	for i, obj := range objs {
@@ -45,11 +46,11 @@ func (idx *IndexService) BatchUpdate(objs []Indexable) (*BatchTask, error) {
 			Body:   obj,
 		}
 	}
-	tr := new(BatchTask)
-	return tr, idx.service.Post(idx.pathFor("batch"), map[string]interface{}{
+	v := idx.service.Post(idx.pathFor("batch"), map[string]interface{}{
 		"requests": requests,
-	}).Scan(tr)
+	})
 
+	return NewTask(idx, v)
 }
 
 func (idx *IndexService) GetObject(id string, attrs ...string) Value {
@@ -57,8 +58,8 @@ func (idx *IndexService) GetObject(id string, attrs ...string) Value {
 }
 
 func (idx *IndexService) SetSettings(s *Settings) (*Task, error) {
-	tr := new(Task)
-	return tr, idx.service.Put(idx.pathFor("settings"), s).Scan(tr)
+	v := idx.service.Put(idx.pathFor("settings"), s)
+	return NewTask(idx, v)
 }
 
 func (idx *IndexService) Settings() *SettingsBuilder {

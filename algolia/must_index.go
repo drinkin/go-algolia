@@ -4,7 +4,7 @@ type MustIndex struct {
 	index Index
 }
 
-func (m *MustIndex) BatchUpdate(objs []Indexable) *BatchTask {
+func (m *MustIndex) BatchUpdate(objs []Indexable) *Task {
 	ts, err := m.index.BatchUpdate(objs)
 	check(err)
 	return ts

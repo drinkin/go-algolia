@@ -3,7 +3,6 @@ package algolia_test
 import (
 	"github.com/drinkin/di/random"
 	"github.com/drinkin/go-algolia/algolia"
-	"github.com/k0kubun/pp"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -18,18 +17,13 @@ var _ = Describe("Algolia", func() {
 	})
 
 	CheckValidIndex := func(idx algolia.Index) {
-		expectTaskPublished := func(taskId int64) {
-			Eventually(func() bool {
-				return idx.Must().GetTaskStatus(taskId).IsPublished()
-			}, 1, .1).Should(BeTrue())
-		}
-
 		It("", func() {
 			tr, err := idx.UpdateObject(example)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(tr.ObjectId).To(Equal(example.AlgoliaId()))
 
-			expectTaskPublished(tr.TaskId)
+			err = tr.Wait()
+			Expect(err).ToNot(HaveOccurred())
 
 			savedObj := new(Example)
 			Expect(idx.GetObject(example.AlgoliaId()).Scan(savedObj)).ToNot(HaveOccurred())
@@ -48,8 +42,8 @@ var _ = Describe("Algolia", func() {
 
 		It("GetTaskStatus that doesn't exist", func() {
 			ts, err := idx.GetTaskStatus(random.Int64(1, 99999999999))
-			pp.Print(ts)
-			pp.Print(err)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ts.Status).To(Equal("notPublished"))
 		})
 
 	}
