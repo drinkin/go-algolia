@@ -6,7 +6,7 @@ type Settings struct {
 	NumericAttributesToIndex []string `json:"numericAttributesToIndex,omitempty"`
 	AttributeForDistinct     string   `json:"attributeForDistinct,omitempty"`
 	Ranking                  []string `json:"ranking,omitempty"`
-	CustomRanking            []string `json:"custom_ranking,omitempty"`
+	CustomRanking            []string `json:"customRanking,omitempty"`
 }
 
 type SettingsBuilder struct {
