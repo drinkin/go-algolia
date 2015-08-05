@@ -60,6 +60,12 @@ func (idx *IndexMock) doUpdate(obj Indexable) error {
 	return nil
 }
 
+func (idx *IndexMock) randomTask() *Task {
+	task := randomTask(idx)
+	idx.tasks[task.Id] = true
+	return task
+}
+
 func (idx *IndexMock) UpdateObject(obj Indexable) (*Task, error) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
@@ -68,11 +74,9 @@ func (idx *IndexMock) UpdateObject(obj Indexable) (*Task, error) {
 		return nil, err
 	}
 
-	task := randomTask(idx)
+	task := idx.randomTask()
 	task.ObjectId = obj.AlgoliaId()
 	task.UpdatedAt = time.Now()
-
-	idx.tasks[task.Id] = true
 
 	return task, nil
 }
@@ -109,7 +113,8 @@ func (idx *IndexMock) SetSettings(s *Settings) (*Task, error) {
 	defer idx.mu.Unlock()
 
 	idx.settings = s
-	return randomTask(idx), nil
+
+	return idx.randomTask(), nil
 }
 
 func (idx *IndexMock) Clear() (*Task, error) {
@@ -117,7 +122,7 @@ func (idx *IndexMock) Clear() (*Task, error) {
 	defer idx.mu.Unlock()
 
 	idx.objects = make(map[string][]byte)
-	return randomTask(idx), nil
+	return idx.randomTask(), nil
 }
 
 func (idx *IndexMock) Settings() *SettingsBuilder {

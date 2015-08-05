@@ -60,6 +60,13 @@ var _ = Describe("Algolia", func() {
 				CustomRanking("desc(name)").
 				Save()
 		})
+
+		It("can clear", func() {
+			tr, err := idx.Clear()
+			Expect(err).ToNot(HaveOccurred())
+			err = tr.Wait()
+			Expect(err).ToNot(HaveOccurred())
+		})
 	}
 
 	CheckValidClient := func(client algolia.Client) {
