@@ -58,6 +58,11 @@ func (idx *IndexService) SetSettings(s *Settings) (*Task, error) {
 	return NewTask(idx, v)
 }
 
+func (idx *IndexService) Clear() (*Task, error) {
+	v := idx.service.Post(idx.pathFor("clear"), nil)
+	return NewTask(idx, v)
+}
+
 func (idx *IndexService) Settings() *SettingsBuilder {
 	return NewSettingsBuilder(idx)
 }

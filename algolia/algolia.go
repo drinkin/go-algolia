@@ -34,6 +34,7 @@ type Index interface {
 	GetObject(id string, attrs ...string) Value
 	Settings() *SettingsBuilder
 	SetSettings(*Settings) (*Task, error)
+	Clear() (*Task, error)
 }
 
 type Value interface {

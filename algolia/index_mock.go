@@ -112,6 +112,14 @@ func (idx *IndexMock) SetSettings(s *Settings) (*Task, error) {
 	return randomTask(idx), nil
 }
 
+func (idx *IndexMock) Clear() (*Task, error) {
+	idx.mu.Lock()
+	defer idx.mu.Unlock()
+
+	idx.objects = make(map[string][]byte)
+	return randomTask(idx), nil
+}
+
 func (idx *IndexMock) Settings() *SettingsBuilder {
 	return NewSettingsBuilder(idx)
 }
