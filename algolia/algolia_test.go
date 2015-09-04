@@ -49,7 +49,7 @@ var _ = Describe("Algolia", func() {
 
 		It("Delete object that doesn't exist", func() {
 			obj := new(Example)
-			err := idx.GetObject(random.Base64(10)).Scan(obj)
+			err := idx.DeleteObject(random.Base64(10)).Scan(obj)
 			Expect(err).To(HaveOccurred())
 		})
 
