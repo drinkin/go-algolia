@@ -108,6 +108,20 @@ func (idx *IndexMock) GetObject(id string, attrs ...string) Value {
 	return NewMockValue(b)
 }
 
+func (idx *IndexMock) DeleteObject(id string) Value {
+	idx.mu.RLock()
+	defer idx.mu.Unlock()
+
+	b, ok := idx.objects[id]
+	if !ok {
+		return NewErrValue(&Err{
+			Message: "ObjectID does not exist",
+			Status:  404,
+		})
+	}
+	return NewMockValue(b)
+}
+
 func (idx *IndexMock) SetSettings(s *Settings) (*Task, error) {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()

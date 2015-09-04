@@ -63,6 +63,9 @@ func (s *Service) Post(pth string, obj interface{}) *httpValue {
 func (s *Service) Put(pth string, obj interface{}) *httpValue {
 	return s.writeRequest("PUT", pth, obj)
 }
+func (s *Service) Delete(pth string) *httpValue {
+	return s.writeRequest("DELETE", pth, nil)
+}
 
 func (s *Service) writeRequest(m, pth string, obj interface{}) *httpValue {
 	u := &url.URL{

@@ -53,6 +53,10 @@ func (idx *IndexService) GetObject(id string, attrs ...string) Value {
 	return idx.service.Get(idx.pathFor(id))
 }
 
+func (idx *IndexService) DeleteObject(id string) Value {
+	return idx.service.Delete(idx.pathFor(id))
+}
+
 func (idx *IndexService) SetSettings(s *Settings) (*Task, error) {
 	v := idx.service.Put(idx.pathFor("settings"), s)
 	return NewTask(idx, v)
