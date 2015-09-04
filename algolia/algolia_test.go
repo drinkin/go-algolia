@@ -47,6 +47,12 @@ var _ = Describe("Algolia", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
+		It("Delete object that doesn't exist", func() {
+			obj := new(Example)
+			err := idx.DeleteObject(random.Base64(10)).Scan(obj)
+			Expect(err).To(HaveOccurred())
+		})
+
 		It("GetTaskStatus that doesn't exist", func() {
 			ts, err := idx.GetTaskStatus(random.Int64(1, 99999999999))
 			Expect(err).ToNot(HaveOccurred())

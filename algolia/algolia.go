@@ -35,6 +35,7 @@ type Index interface {
 	Settings() *SettingsBuilder
 	SetSettings(*Settings) (*Task, error)
 	Clear() (*Task, error)
+	DeleteObject(id string) Value
 }
 
 type Value interface {
