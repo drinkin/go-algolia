@@ -1,6 +1,15 @@
 package algolia
 
-import "github.com/drinkin/di/env"
+import (
+	"time"
+
+	"github.com/drinkin/di/env"
+)
+
+var (
+	TaskWaitTimeout      = 5 * time.Second
+	TaskWaitPollInterval = time.Millisecond * 200
+)
 
 // Indexable represents objects that can be saved to the search index.
 type Indexable interface {
@@ -19,6 +28,9 @@ type Client interface {
 	// SetIndexPrefix allows you to set a prefix for all following Indexes.
 	// This is useful for
 	SetIndexPrefix(string)
+
+	// IsMock returns true if using a mock client.
+	IsMock() bool
 }
 
 // Index represents a backend.

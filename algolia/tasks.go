@@ -37,8 +37,8 @@ func (t *Task) Wait() error {
 		return nil
 	}
 
-	pollingInterval := time.Millisecond * 100
-	timeout := time.After(3 * time.Second)
+	pollingInterval := TaskWaitPollInterval
+	timeout := time.After(TaskWaitTimeout)
 	for {
 		select {
 		case <-time.After(pollingInterval):

@@ -76,15 +76,25 @@ var _ = Describe("Algolia", func() {
 	}
 
 	CheckValidClient := func(client algolia.Client) {
-		CheckValidIndex(client.Index(TestIndexName))
+		Context("Client", func() {
+			if client.IsMock() {
+				By("Mock Client")
+			} else {
+				By("Real Client")
+			}
+			CheckValidIndex(client.Index(TestIndexName))
 
-		It("can set prefix", func() {
-			client.SetIndexPrefix("test_")
-			Expect(client.Index("hello").Name()).To(Equal("test_hello"))
+			It("can set prefix", func() {
+				client.SetIndexPrefix("test_")
+				Expect(client.Index("hello").Name()).To(Equal("test_hello"))
+			})
+
 		})
+
 	}
 
 	for _, client := range clients {
+
 		CheckValidClient(client)
 	}
 

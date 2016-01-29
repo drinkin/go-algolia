@@ -22,6 +22,10 @@ func NewClientService(appId, apiKey string) *ClientService {
 	}
 }
 
+func (c *ClientService) IsMock() bool {
+	return false
+}
+
 func (c *ClientService) SetIndexPrefix(p string) {
 	c.prefix = p
 }

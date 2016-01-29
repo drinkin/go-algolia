@@ -110,7 +110,7 @@ func (idx *IndexMock) GetObject(id string, attrs ...string) Value {
 
 func (idx *IndexMock) DeleteObject(id string) Value {
 	idx.mu.RLock()
-	defer idx.mu.Unlock()
+	defer idx.mu.RUnlock()
 
 	b, ok := idx.objects[id]
 	if !ok {

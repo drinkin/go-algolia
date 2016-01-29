@@ -17,6 +17,10 @@ func (c *ClientMock) SetIndexPrefix(p string) {
 	c.prefix = p
 }
 
+func (c *ClientMock) IsMock() bool {
+	return true
+}
+
 func (c *ClientMock) Index(n string) Index {
 	name := fmt.Sprintf("%s%s", c.prefix, n)
 	if idx, ok := c.indexes[name]; ok {
