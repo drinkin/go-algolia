@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	TaskWaitTimeout      = 5 * time.Second
+	TaskWaitTimeout      = 10 * time.Second
 	TaskWaitPollInterval = time.Millisecond * 200
 )
 
